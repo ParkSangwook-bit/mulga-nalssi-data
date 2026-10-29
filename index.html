@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>물가날씨 — 이번 주 장바구니 물가</title>
+    <meta name="description" content="제철 농산물 소매가격의 주간 등락을 날씨처럼 보여 주는 토스 미니앱 '물가날씨'의 서비스 소개와 데이터 이용 안내입니다." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css" />
+    <style>
+      :root {
+        --text-strong: #191f28;
+        --text: #333d4b;
+        --text-sub: #4e5968;
+        --line: #e5e8eb;
+        --bg: #ffffff;
+        --canvas: #f2f4f6;
+        --brand: #2a8540;
+        --up: #d22030;
+        --down: #1b64da;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--canvas);
+        color: var(--text);
+        font-family: "Tossface", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+        font-size: 17px;
+        line-height: 1.6;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+      }
+
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 16px 48px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 8px;
+      }
+
+      .logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: #eaf6ec;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        flex-shrink: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.3;
+        color: var(--text-strong);
+      }
+
+      .tagline {
+        margin: 0;
+        color: var(--text-sub);
+        font-size: 17px;
+      }
+
+      .status {
+        display: inline-block;
+        margin: 16px 0 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #fff4e0;
+        color: #7a4b00;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      section {
+        background: var(--bg);
+        border-radius: 20px;
+        padding: 24px 20px;
+        margin-top: 16px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 20px;
+        line-height: 1.4;
+        color: var(--text-strong);
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .preview {
+        display: grid;
+        gap: 12px;
+      }
+
+      .preview-label {
+        font-size: 13px;
+        color: var(--text-sub);
+        margin: 0 0 4px;
+      }
+
+      .hero {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        border-radius: 20px;
+        padding: 18px;
+        background: linear-gradient(160deg, #fff6d6 0%, #eef7ff 100%);
+      }
+
+      .hero .weather {
+        font-size: 56px;
+        line-height: 1;
+      }
+
+      .hero-kicker {
+        margin: 0;
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .hero-title {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-strong);
+      }
+
+      .hero-sub {
+        margin: 4px 0 0;
+        font-size: 15px;
+        color: var(--text);
+      }
+
+      .rows {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+
+      .row + .row {
+        border-top: 1px solid var(--line);
+      }
+
+      .avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        flex-shrink: 0;
+      }
+
+      .row-name {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .row-name strong {
+        display: block;
+        color: var(--text-strong);
+      }
+
+      .row-name span,
+      .row-price span {
+        font-size: 15px;
+        color: var(--text-sub);
+      }
+
+      .row-price {
+        text-align: right;
+      }
+
+      .row-price strong {
+        display: block;
+        color: var(--text-strong);
+      }
+
+      .row-price .down {
+        color: var(--down);
+      }
+
+      .row-price .up {
+        color: var(--up);
+      }
+
+      .note {
+        font-size: 13px;
+        color: var(--text-sub);
+        margin: 4px 0 0;
+      }
+
+      a {
+        color: var(--brand);
+      }
+
+      footer {
+        margin-top: 24px;
+        font-size: 13px;
+        color: var(--text-sub);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="logo" aria-hidden="true">🥬</span>
+        <div>
+          <h1>물가날씨</h1>
+          <p class="tagline">이번 주 장바구니 물가를 날씨처럼 보여 드려요</p>
+        </div>
+      </header>
+      <span class="status">출시 준비 중</span>
+
+      <section>
+        <h2>어떤 서비스인가요</h2>
+        <p>
+          물가날씨는 토스 앱의 미니앱 플랫폼(앱인토스)에서 제공할 예정인 미니앱입니다. 장을 보기 전에 이번 주 제철 농산물
+          가격이 지난주보다 올랐는지 내렸는지 빠르게 확인할 수 있도록 돕습니다.
+        </p>
+        <ul>
+          <li>제철 품목의 이번 주 소매가격과 지난주 대비 등락 (내리면 맑음 ☀️, 오르면 비 🌧️)</li>
+          <li>품목별 최근 4주 가격 추이, 평년·1년 전 가격 비교</li>
+          <li>배추 포기 수에 따른 김장 재료 필요량과 예상 비용</li>
+          <li>자주 사는 품목을 관심 품목으로 저장 (기기 안에만 저장)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>화면 미리보기</h2>
+        <div class="preview">
+          <p class="preview-label">아래 숫자는 화면 구성을 보여 주기 위한 예시 데이터입니다.</p>
+          <div class="hero">
+            <div style="flex: 1; min-width: 0">
+              <p class="hero-kicker">이번 주 장바구니 날씨는</p>
+              <p class="hero-title">대체로 맑음</p>
+              <p class="hero-sub">제철 품목 5개 중 3개가 지난주보다 내렸어요</p>
+            </div>
+            <span class="weather" aria-hidden="true">🌤️</span>
+          </div>
+          <div class="rows">
+            <div class="row">
+              <span class="avatar" style="background: #e8f6e9" aria-hidden="true">🥬</span>
+              <span class="row-name"><strong>배추</strong><span>1포기</span></span>
+              <span class="row-price"><strong>3,980원</strong><span class="down">☀️ -370원 (-8.5%)</span></span>
+            </div>
+            <div class="row">
+              <span class="avatar" style="background: #ffecec" aria-hidden="true">🍎</span>
+              <span class="row-name"><strong>사과</strong><span>10개</span></span>
+              <span class="row-price"><strong>31,200원</strong><span class="up">🌧️ +800원 (+2.6%)</span></span>
+            </div>
+            <div class="row">
+              <span class="avatar" style="background: #f6edf8" aria-hidden="true">🍠</span>
+              <span class="row-name"><strong>고구마</strong><span>1kg</span></span>
+              <span class="row-price"><strong>5,320원</strong><span class="down">🌤️ -180원 (-3.3%)</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>가격 데이터는 이렇게 씁니다</h2>
+        <ul>
+          <li>출처: KAMIS 농산물유통정보(한국농수산식품유통공사)의 소매가격 조사 자료</li>
+          <li>자동화 스크립트가 주 1회 KAMIS Open API를 조회해 결과를 저장하고, 앱은 저장된 결과만 보여 줍니다. 앱 사용자마다 KAMIS API를 호출하지 않습니다.</li>
+          <li>모든 가격 화면에 출처와 조사일을 함께 표기합니다.</li>
+          <li>표시하는 가격은 조사 평균이며, 특정 매장의 판매가격이 아닙니다.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>이용 안내</h2>
+        <ul>
+          <li>무료로 이용할 수 있고, 앱 안에 광고가 포함됩니다.</li>
+          <li>로그인이나 개인정보 입력 없이 이용할 수 있습니다.</li>
+        </ul>
+        <p class="note">
+          문의는 <a href="https://github.com/ParkSangwook-bit/mulga-nalssi-data/issues">GitHub 이슈</a>로 남겨 주세요.
+        </p>
+      </section>
+
+      <footer>
+        물가날씨 · 가격 정보 출처: KAMIS 농산물유통정보<br />
+        이모지: <a href="https://github.com/toss/tossface">Tossface</a>
+      </footer>
+    </main>
+  </body>
+</html>
